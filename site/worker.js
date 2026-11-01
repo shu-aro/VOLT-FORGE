@@ -4,16 +4,18 @@ importScripts('https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js');
 async function start() {
   postMessage({progress: 'Loading the real simulator into your browser. The first time takes about 15 seconds.'});
   const pyodide = await loadPyodide();
+  postMessage({progress:'Loading numerical libraries…'});
   await pyodide.loadPackage(['numpy', 'scipy', 'pandas']);
+  postMessage({progress:'Loading the battery models…'});
   const archive = await fetch('./engine.zip').then((r) => r.arrayBuffer());
   pyodide.unpackArchive(archive, 'zip', {extractDir: '/home/pyodide/volt'});
   pyodide.runPython("import sys; sys.path[:0] = ['/home/pyodide/volt', '/home/pyodide/volt/src']");
   postMessage({progress: 'Starting your private workspace…'});
   const bridge = pyodide.pyimport('bridge');
   // Configuration lookup only. No provider inference, prompt, or key is sent.
-  const {readAIAvailability} = await import('./ai-status.mjs');
-  const configured = await readAIAvailability();
-  bridge.configure_ai(configured);
+  const {readAIStatus} = await import('./ai-status.mjs');
+  const status = await readAIStatus();
+  bridge.configure_ai(status.available===true, status.provider||'Groq');
   return {pyodide, bridge};
 }
 
@@ -28,7 +30,9 @@ async function ask(prompt) {
 }
 
 const ready = start();
-onmessage = async ({data}) => {
+let queue=Promise.resolve();
+onmessage = ({data}) => { queue=queue.then(async()=>{
+try{
   const {pyodide, bridge} = await ready;
   if (data.path.startsWith('/api/studio/export/')) {
     await pyodide.loadPackage('matplotlib');
@@ -38,4 +42,5 @@ onmessage = async ({data}) => {
   let answer = call(null);
   if (answer.ai_prompt) answer = call(await ask(answer.ai_prompt));
   postMessage({id: data.id, ...answer});
-};
+}catch{postMessage({id:data.id,status:500,type:'application/json',body:JSON.stringify({status:'error',error:{code:'runtime_error',message:'This action could not finish. Download a design backup before retrying.'}}),binary:false});}
+});};

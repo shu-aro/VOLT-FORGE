@@ -22,10 +22,12 @@ test('optional AI metadata also bounds a stalled response body',async()=>{
 
 test('AI configuration metadata never sends a provider request or exposes credentials',async()=>{
   const dir=await mkdtemp(path.join(tmpdir(),'voltforge-ai-metadata-'));
-  const previous=process.env.GEMINI_API_KEY,originalFetch=globalThis.fetch;
+  const previous=process.env.GROQ_API_KEY,originalFetch=globalThis.fetch;
   try{
     await writeFile(path.join(dir,'package.json'),JSON.stringify({type:'module'}));
     await writeFile(path.join(dir,'_prompt.js'),'export const SCHEMA={}; export const SYSTEM="Synthetic test";');
+    await writeFile(path.join(dir,'_knowledge.js'),'export const KNOWLEDGE=[];');
+    await copyFile(new URL('../site/api/context.mjs',import.meta.url),path.join(dir,'context.mjs'));
     await copyFile(new URL('../site/api/ai.js',import.meta.url),path.join(dir,'ai.js'));
     const {default:handler}=await import(pathToFileURL(path.join(dir,'ai.js')));
     globalThis.fetch=()=>{throw new Error('Metadata must not make external calls');};
@@ -35,16 +37,16 @@ test('AI configuration metadata never sends a provider request or exposes creden
         status:code=>{output.status=code;return response;},json:value=>{output.body=value;return response;}};
       await handler({method,headers:{host:'localhost'},body:{}},response);return output;
     };
-    delete process.env.GEMINI_API_KEY;
-    assert.deepEqual((await invoke('GET')).body,{available:false,connection_verified:false});
+    delete process.env.GROQ_API_KEY;
+    assert.deepEqual((await invoke('GET')).body,{available:false,provider:null,model:null,connection_verified:false});
     assert.equal((await invoke('POST')).status,503);
-    process.env.GEMINI_API_KEY='synthetic-private-test-value';
+    process.env.GROQ_API_KEY='synthetic-private-test-value';
     const configured=await invoke('GET');
-    assert.deepEqual(configured.body,{available:true,connection_verified:false});
+    assert.deepEqual(configured.body,{available:true,provider:'Groq',model:'openai/gpt-oss-120b',connection_verified:false});
     assert.equal(configured['Cache-Control'],'no-store');
     assert.ok(!JSON.stringify(configured).includes('synthetic-private-test-value'));
   }finally{
-    if(previous===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=previous;
+    if(previous===undefined)delete process.env.GROQ_API_KEY;else process.env.GROQ_API_KEY=previous;
     globalThis.fetch=originalFetch;
     assert.equal(path.dirname(path.resolve(dir)),path.resolve(tmpdir()));
     assert.ok(path.basename(dir).startsWith('voltforge-ai-metadata-'));

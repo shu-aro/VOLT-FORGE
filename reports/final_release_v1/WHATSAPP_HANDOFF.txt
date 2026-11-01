@@ -1,0 +1,7 @@
+Final VOLT-FORGE is ready for review. Jai’s fixes are included; Groq is working on the public app. The 4,006-case rerun matches every stored result. Software checks: 515 Python passes + 8 known skips, 74 JS passes. Browser simulation, reviewed AI edit, export/replay and editable backup/import all worked.
+
+Downloads has both final PDFs and VOLT-FORGE_Final_Handoff.zip. Desktop has VOLT-FORGE_Final_Appendix.xlsx. My pick is the Alternative PDF because the story, prototype and evidence are easier to scan; the other preserves our original blue design.
+
+Left: pick one PDF, import the final XLSX into the existing Google Sheet using “Replace spreadsheet” so its link stays the same, check both public links signed out, then upload the chosen PDF and keep the portal receipt. Deadline 1 Nov, 11:59 pm IST.
+
+Keep the claims straight: two cells passed 33/33 declared simulation cases; real voltage/temperature accuracy is still unestablished. ₹5L/team and ₹50k/lab are proposed prices, not tested demand. AI is optional and can hit the free quota. No hardware or user trial is being claimed.

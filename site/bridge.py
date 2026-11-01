@@ -29,11 +29,11 @@ class NeedAI(BaseException):
 class WebCopilot(Copilot):
     def __init__(self, studio):
         super().__init__(studio); self.provider = None; self.reply = None
-        self.configured = False
+        self.configured = False; self.provider_name = 'Groq'; self.connection_verified = False
 
     def status(self):
-        return dict(available=self.configured,provider='Gemini' if self.configured else None,
-                    last_error=self.last_error,connection_verified=False,
+        return dict(available=self.configured,provider=self.provider_name if self.configured else None,
+                    last_error=self.last_error,connection_verified=self.connection_verified,
                     availability_basis='server_configuration' if self.configured else 'not_configured')
 
     def _infer(self, prompt):
@@ -46,6 +46,7 @@ class WebCopilot(Copilot):
             raise ValueError('The AI returned an incomplete answer. Please try again.')
         if not 0 < len(response['message']) <= 12000 or len(response['actions']) > 24:
             raise ValueError('The AI answer was too long. Try a more specific change.')
+        self.connection_verified = True
         return response
 
 
@@ -56,10 +57,11 @@ METHODS = dict(create=studio.create, open=studio.document, save=studio.save, sav
                investigate_case=studio.investigate_case, open_investigation_case=studio.open_investigation_case)
 
 
-def configure_ai(available):
+def configure_ai(available, provider='Groq'):
     # Metadata supplied by our endpoint; no credential reaches the Python worker.
     copilot.configured = available is True
-    copilot.provider = 'Gemini' if copilot.configured else None
+    copilot.provider_name = str(provider)
+    copilot.provider = copilot.provider_name if copilot.configured else None
 
 
 def real_plots():

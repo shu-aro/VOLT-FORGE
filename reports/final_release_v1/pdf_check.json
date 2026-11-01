@@ -1,0 +1,60 @@
+{
+  "VOLT-FORGE_Final_Submission.pdf": {
+    "pages": 2,
+    "bytes": 3098404,
+    "links": [
+      {
+        "uri": "https://volt-forge-app.vercel.app/",
+        "rect": [
+          501.504936,
+          470.0,
+          606.50597,
+          481.0
+        ]
+      },
+      {
+        "uri": "https://volt-forge-app.vercel.app/appendix",
+        "rect": [
+          475.50468,
+          37.0,
+          625.506157,
+          48.5
+        ]
+      }
+    ],
+    "page_size": [
+      960.009449,
+      540.0
+    ],
+    "searchable_content": true
+  },
+  "VOLT-FORGE_Alternative_Submission.pdf": {
+    "pages": 2,
+    "bytes": 3099165,
+    "links": [
+      {
+        "uri": "https://volt-forge-app.vercel.app/",
+        "rect": [
+          749.007372,
+          400.0,
+          943.009282,
+          415.0
+        ]
+      },
+      {
+        "uri": "https://volt-forge-app.vercel.app/appendix",
+        "rect": [
+          784.507722,
+          16.0,
+          943.009282,
+          41.5
+        ]
+      }
+    ],
+    "page_size": [
+      960.009449,
+      540.0
+    ],
+    "searchable_content": true
+  }
+}
